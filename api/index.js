@@ -1,18 +1,22 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import app from "./app.js";
 import connectUsingMongoose from "./config/db.config.js";
+import ApplicationLevelError from "./middlewares/applicationError.middleware.js";
 
 const PORT = process.env.PORT || 3000;
+
 
 const startServer = async () => {
   try {
     await connectUsingMongoose();
 
-    app.listen(PORT, () => {
-      console.log(`Server is listening on port ${process.env.PORT}`);
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server is listening on port ${PORT}`);
     });
   } catch (e) {
-    console.log("Failed to start the server: ", e.message);
-    process.exit(1);
+    throw new ApplicationLevelError(`Failed to start the server: ${e.message}`, 500);
   }
 };
 

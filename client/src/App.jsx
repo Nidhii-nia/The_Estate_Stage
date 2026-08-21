@@ -1,5 +1,4 @@
 //lib imports
-import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 //pages
@@ -12,7 +11,7 @@ import Navbar from "./components/Navbar.jsx";
 
 const router = createBrowserRouter([
   { path: "/sign-in", element: <SignIn /> },
-  { path: "/sign-out", element: <SignUp /> },
+  { path: "/sign-up", element: <SignUp /> },
   {
     path: "/",
     element: <Navbar />,

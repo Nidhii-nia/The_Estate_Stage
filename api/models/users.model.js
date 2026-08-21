@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
+import ApplicationLevelError from "../middlewares/applicationError.middleware.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -24,7 +25,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       match: [
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-        "The password must contain atleast one upperCase, one lowerCase, one special character, one number and mst be of 8 characters!",
+        "The password must contain atleast one upperCase, one lowerCase, one special character, one number and must be of 8 characters!",
       ],
       required: true,
       select:false,
@@ -34,16 +35,21 @@ const userSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-const User = mongoose.model("User", userSchema);
 
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
-
+  
   try {
     this.password = await bcrypt.hash(this.password, 12);
   } catch (e) {
-    console.log("Password hashing error:", e.message);
+    throw new ApplicationLevelError(e.message,500);
   }
 });
 
-export default userSchema;
+userSchema.methods.comparePassword = async function(password){
+  return await bcrypt.compare(password,this.password);
+}
+
+const User = mongoose.model("User", userSchema);
+
+export default User;
