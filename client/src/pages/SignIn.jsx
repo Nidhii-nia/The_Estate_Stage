@@ -2,14 +2,21 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useFormStatus } from "react-dom";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
+import { useDispatch } from "react-redux";
 
-//1. Submit Button
+// File imports
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+} from "../../redux/slice/user.slice.js";
+
+// 1. Submit Button Component
 const SubmitButton = ({ isFormDataEmpty }) => {
   const { pending } = useFormStatus();
-
   const btnStatus = pending || isFormDataEmpty;
 
   return (
@@ -23,45 +30,61 @@ const SubmitButton = ({ isFormDataEmpty }) => {
   );
 };
 
-//2.Handling formstatus
-
-const signInAction = async (previousState, formData) => {
-  const email = formData.get("email");
-  const password = formData.get("password");
-
-  try {
-    const res = await axios.post("/api/user/login", { email, password });
-    console.log("Backend Response for signIn", res);
-
-    return {
-      success: true,
-      error: null,
-    };
-  } catch (e) {
-    console.log("Backend error for signIn: ", e.response.data);
-    return {
-      success: false,
-      error: e?.response?.data || e.message || "An error occurred!",
-    };
-  }
-};
-
+// 2. Main Component
 const SignIn = () => {
-  //STATE HOOK
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const [visible, setVisibility] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-  const navigate = useNavigate();
 
-  //FORM HANDLING HOOK
+  // Action function defined inside component to access dispatch and navigate safely
+  const signInAction = async (previousState, formDataPayload) => {
+    const email = formDataPayload.get("email");
+    const password = formDataPayload.get("password");
+
+    // 1. Start Redux loading state
+    dispatch(signInStart());
+
+    try {
+      const res = await axios.post("/api/user/login", { email, password });
+      
+      // 2. Dispatch Redux success state with returned user data
+      dispatch(signInSuccess(res.data));
+
+      // 3. Redirect immediately on successful login
+      navigate("/");
+
+      return {
+        success: true,
+        error: null,
+      };
+    } catch (e) {
+      // Extract clean error message string to prevent rendering raw objects
+      const errorMessage =
+        e?.response?.data?.message ||
+        (typeof e?.response?.data === "string" ? e.response.data : null) ||
+        e.message ||
+        "An error occurred!";
+
+      // 4. Dispatch Redux failure state
+      dispatch(signInFailure(errorMessage));
+
+      return {
+        success: false,
+        error: errorMessage,
+      };
+    }
+  };
+
+  // Form handling hook
   const [state, formAction] = useActionState(signInAction, {
     success: false,
     error: null,
   });
-
-  const isFormDataEmpty = !formData.email.trim() || !formData.password.trim();
 
   const handleChange = (e) => {
     setFormData({
@@ -70,16 +93,7 @@ const SignIn = () => {
     });
   };
 
-  console.log("Form Data Sign-in:", formData);
-
-  //FORM RESET
-
-  //NAVIGATION
-  useEffect(() => {
-    if (state.success) {
-      navigate("/");
-    }
-  }, [state.success, navigate]);
+  const isFormDataEmpty = !formData.email.trim() || !formData.password.trim();
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center p-4">
@@ -94,12 +108,7 @@ const SignIn = () => {
           </div>
         )}
 
-        <form
-          action={(formData) => {
-            formAction(formData);
-          }}
-          className="flex w-full flex-col items-center gap-5"
-        >
+        <form action={formAction} className="flex w-full flex-col items-center gap-5">
           <Input
             type="email"
             name="email"
@@ -111,7 +120,7 @@ const SignIn = () => {
           />
           <div className="w-full relative flex flex-wrap justify-between items-center">
             <Input
-              type={visible === true ? "text" : "password"}
+              type={visible ? "text" : "password"}
               name="password"
               id="password"
               placeholder="Enter your password"
@@ -129,13 +138,17 @@ const SignIn = () => {
           </div>
 
           <SubmitButton isFormDataEmpty={isFormDataEmpty} />
-          <Button className="w-full transition-transform hover:scale-[1.02]">
+          <Button
+            type="button"
+            className="w-full transition-transform hover:scale-[1.02]"
+          >
             Continue with Google
           </Button>
         </form>
+
         <div>
           <span className="text-gray-800">
-            Have an account?{" "}
+            Don't have an account?{" "}
             <NavLink
               to={"/sign-up"}
               className={"text-cyan-700 hover:underline"}

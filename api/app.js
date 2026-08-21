@@ -1,6 +1,5 @@
 import express from "express";
 import cookieParser from "cookie-parser";
-import cors from "cors";
 
 //file imports
 import ApplicationLevelError from "./middlewares/applicationError.middleware.js";

@@ -18,6 +18,7 @@ const Navbar = () => {
               name="searchbar"
               id="searchbar"
               placeholder="Search estate here..."
+              className={"pr-9"}
             />
             <button
               type="submit"
