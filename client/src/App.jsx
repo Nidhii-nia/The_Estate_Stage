@@ -1,5 +1,7 @@
 //lib imports
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { Toaster } from "sonner";
+import "sonner/dist/styles.css"; // Added CSS import
 
 //pages
 import Home from "./pages/Home.jsx";
@@ -21,7 +23,6 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Home /> },
       {
-        path: "/",
         element: <PrivateRoute />,
         children: [{ path: "profile", element: <Profile /> }],
       },
@@ -32,7 +33,25 @@ const router = createBrowserRouter([
 ]);
 
 const App = () => {
-  return <RouterProvider router={router} />;
+  return (
+    <>
+<Toaster 
+  position="top-right" 
+  offset="75px"
+  toastOptions={{
+    style: {
+      width: "fit-content",      // Shrinks box width to fit text tightly
+      maxWidth: "260px",         // Prevents it from becoming too wide
+      fontSize: "13px",          // Slightly smaller font for compact look
+      padding: "8px 12px",       // Reduces inner padding/height
+      marginRight: "-70px",      // Pushes it closer to the right viewport edge
+    },
+    className: "max-sm:!top-16 max-sm:!max-w-[120vw]",
+  }}
+/>
+      <RouterProvider router={router} />
+    </>
+  );
 };
 
 export default App;

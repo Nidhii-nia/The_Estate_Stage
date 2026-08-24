@@ -26,11 +26,7 @@ const OAuth = () => {
       console.log("Response backend google:", response);
 
       dispatch(
-        signInSuccess({
-          username: response.data.data.username,
-          email: response.data.data.email,
-          avatar: response.data.data.avatar,
-        }),
+        signInSuccess(response.data.data),
       );
       navigate("/");
     } catch (e) {

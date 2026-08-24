@@ -59,7 +59,7 @@ const Navbar = () => {
             </NavLink>
             {currentUser ? (
               <NavLink to="profile" className={"max-sm:absolute max-sm:top-5 max-sm:right-5"}>
-                <img src={currentUser.avatar} alt="user-avatar" className=" rounded-full w-9 h-9 outline-2 outline-mauve-400" referrerPolicy="no-referrer"/>
+                <img src={currentUser.avatar} alt="user-avatar" className=" rounded-full w-9 h-9 outline-2 outline-mauve-400 hover:outline-cyan-600 transition-transform" referrerPolicy="no-referrer"/>
               </NavLink>
             ) : (
               <NavLink

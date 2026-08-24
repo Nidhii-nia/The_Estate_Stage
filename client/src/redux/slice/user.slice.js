@@ -1,31 +1,48 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const INITIAL_STATE = {
-currentUser: null,
-error:null,
-loading:null,
+  currentUser: null,
+  error: null,
+  loading: null,
 };
 
-const userSlice = createSlice({
-    name: "User",
-    initialState: INITIAL_STATE,
-    reducers:{
-        signInStart: (state)=>{
-            state.loading = true;
-        },
-        signInSuccess: (state,action) => {
-            state.currentUser = action.payload;
-            state.loading = false;
-            state.error = false;
-        },
-        signInFailure: (state,action) => {
-            state.loading = false;
-            state.error = action.payload
-        }
-    }
+const normalizeUser = (user) => ({
+  ...user,
+  id: user.id || user._id,
 });
 
-export const {signInStart,signInSuccess,signInFailure} = userSlice.actions;
+const userSlice = createSlice({
+  name: "User",
+  initialState: INITIAL_STATE,
+  reducers: {
+    signInStart: (state) => {
+      state.loading = true;
+    },
+    signInSuccess: (state, action) => {
+      state.currentUser = normalizeUser(action.payload);
+      state.loading = false;
+      state.error = false;
+    },
+    signInFailure: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    updateUserStart: (state) => {
+      state.loading = true;
+    },
+    updateUserSuccess: (state, action) => {
+      state.loading = false;
+      state.error = null;
+      state.currentUser = normalizeUser(action.payload);
+    },
+    updateUserFailure: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+  },
+});
+
+export const { signInStart, signInSuccess, signInFailure, updateUserStart,updateUserSuccess, updateUserFailure } = userSlice.actions;
 
 export const userReducer = userSlice.reducer;
 

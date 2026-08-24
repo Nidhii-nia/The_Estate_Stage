@@ -11,7 +11,7 @@ import { useDispatch } from "react-redux";
 import {
   signInStart,
   signInSuccess,
-  signInFailure,
+  signInFailure
 } from "../redux/slice/user.slice.js";
 import OAuth from "../components/OAuth.jsx";
 
@@ -54,7 +54,9 @@ const SignIn = () => {
       const res = await axios.post("/api/auth/login", { email, password });
       
       // 2. Dispatch Redux success state with returned user data
-      dispatch(signInSuccess(res.data));
+      dispatch(signInSuccess(res.data.data));
+      console.log("Res data signin:", res.data.data);
+      
 
       // 3. Redirect immediately on successful login
       navigate("/");

@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import ApplicationLevelError from "./middlewares/applicationError.middleware.js";
 import logger from "./middlewares/logger.middleware.js";
 import authRouter from "./routes/auth.route.js";
+import userRouter from "./routes/user.route.js";
 
 const app = express();
 
@@ -25,13 +26,16 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routes
+// ROUTES
 app.get("/test", (req, res) => {
   res.send("Hello World!");
 });
 
 //auth routes
 app.use("/api/auth", authRouter);
+
+//user routes
+app.use("/api/user", userRouter);
 
 // Application-level Error handler
 app.use((err, req, res, next) => {

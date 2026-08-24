@@ -1,17 +1,17 @@
 import express from "express";
-import UserController from "../controllers/user.controller.js";
+import AuthController from "../controllers/auth.controller.js";
 
 const authRouter = express.Router();
 
-const userController = new UserController();
+const authController = new AuthController();
 
 //signup route
-authRouter.post("/signUp",userController.SignUp);
+authRouter.post("/signUp",authController.SignUp);
 
 //login route
-authRouter.post("/login",userController.Login);
+authRouter.post("/login",authController.Login);
 
 //google route
-authRouter.post("/google",userController.GoogleLogin);
+authRouter.post("/google",authController.GoogleLogin);
 
 export default authRouter;

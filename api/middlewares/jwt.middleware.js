@@ -2,13 +2,13 @@ import jwt from "jsonwebtoken";
 import ApplicationLevelError from "./applicationError.middleware.js";
 
 const auth = (req,res,next) => {
-    const authHeader = req.headers.authorization;
+    const authToken = req.cookies.access_token;
 
-    if(!authHeader){
+    if(!authToken){
         return next(new ApplicationLevelError("Token not found", 401));
     };
 
-    const token = authHeader.startsWith("Bearer ")?authHeader.split(" ")[1]:authHeader;
+    const token = authToken.startsWith("Bearer ")?authToken.split(" ")[1]:authToken;
 
     try{
         const payload = jwt.verify(token,process.env.JWT_SECRET_KEY);
