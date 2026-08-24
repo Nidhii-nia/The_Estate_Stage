@@ -24,13 +24,17 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       match: [
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&]{8,}$/,
         "The password must contain atleast one upperCase, one lowerCase, one special character, one number and must be of 8 characters!",
       ],
       required: true,
       select:false,
       
     },
+    avatar:{
+      type: String,
+      default: "https://cdn-icons-png.flaticon.com/128/1144/1144709.png"
+    }
   },
   { timestamps: true },
 );

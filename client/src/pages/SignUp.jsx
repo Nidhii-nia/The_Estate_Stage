@@ -5,6 +5,7 @@ import { useState, useActionState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
+import OAuth from "../components/OAuth.jsx";
 
 // 1. Submit Button component
 const SubmitButton = ({ isFormDataEmpty }) => {
@@ -28,7 +29,7 @@ const signUpAction = async (previousState, formData) => {
   const password = formData.get("password");
 
   try {
-    const res = await axios.post("/api/user/signUp", {
+    const res = await axios.post("/api/auth/signUp", {
       username,
       email,
       password,
@@ -143,12 +144,7 @@ const SignUp = () => {
 
           <SubmitButton isFormDataEmpty={isFormDataEmpty} />
 
-          <Button
-            type="button"
-            className="w-full transition-transform hover:scale-[1.02]"
-          >
-            Continue with Google
-          </Button>
+          <OAuth />
         </form>
 
         <div>

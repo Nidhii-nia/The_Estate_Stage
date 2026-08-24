@@ -17,7 +17,7 @@ const logger = createLogger({
     new transports.File({
       filename: path.join("logs", "app.log"),
       level: "http",
-      format: format.combine(ignoreErrors(), format.timestamp(), format.json())
+      format: format.combine(ignoreErrors())
     }),
   ],
 });

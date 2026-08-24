@@ -12,7 +12,8 @@ import {
   signInStart,
   signInSuccess,
   signInFailure,
-} from "../../redux/slice/user.slice.js";
+} from "../redux/slice/user.slice.js";
+import OAuth from "../components/OAuth.jsx";
 
 // 1. Submit Button Component
 const SubmitButton = ({ isFormDataEmpty }) => {
@@ -23,7 +24,7 @@ const SubmitButton = ({ isFormDataEmpty }) => {
     <Button
       type="submit"
       disabled={btnStatus}
-      className="w-full bg-cyan-700 hover:bg-cyan-600 transition-transform hover:scale-[1.02]"
+      className="w-full bg-cyan-700 hover:bg-cyan-600 transition-transform hover:scale-[1.02] disabled:cursor-not-allowed"
     >
       {pending ? "Signing In..." : "Sign In"}
     </Button>
@@ -50,7 +51,7 @@ const SignIn = () => {
     dispatch(signInStart());
 
     try {
-      const res = await axios.post("/api/user/login", { email, password });
+      const res = await axios.post("/api/auth/login", { email, password });
       
       // 2. Dispatch Redux success state with returned user data
       dispatch(signInSuccess(res.data));
@@ -138,12 +139,7 @@ const SignIn = () => {
           </div>
 
           <SubmitButton isFormDataEmpty={isFormDataEmpty} />
-          <Button
-            type="button"
-            className="w-full transition-transform hover:scale-[1.02]"
-          >
-            Continue with Google
-          </Button>
+          <OAuth />
         </form>
 
         <div>

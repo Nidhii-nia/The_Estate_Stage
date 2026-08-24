@@ -29,4 +29,4 @@ export const {signInStart,signInSuccess,signInFailure} = userSlice.actions;
 
 export const userReducer = userSlice.reducer;
 
-export const userSelector = (state) => state.user;
+export const userSelector = (state) => state.userReducer;

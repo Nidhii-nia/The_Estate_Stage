@@ -1,24 +1,22 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 
-//file imports
+// File imports
 import ApplicationLevelError from "./middlewares/applicationError.middleware.js";
 import logger from "./middlewares/logger.middleware.js";
-import userRouter from "./routes/user.route.js";
+import authRouter from "./routes/auth.route.js";
 
 const app = express();
 
 app.use(express.json());
-app.use(express.urlencoded({extended:true}));
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.get("/test",(req,res)=>{
-  res.send("Hello World!");
-})
-
-//request logger
+// Request logger (Placed BEFORE routes so all incoming requests are logged)
 app.use((req, res, next) => {
-  logger.http("Incoming HTTP request: ", {
+  logger.http({
+    message: "Incoming HTTP request",
+    body:req.body,
     url: req.url,
     method: req.method,
     query: req.query,
@@ -27,20 +25,25 @@ app.use((req, res, next) => {
   next();
 });
 
-//USER ROUTES
-app.use("/api/user", userRouter);
+// Routes
+app.get("/test", (req, res) => {
+  res.send("Hello World!");
+});
 
+//auth routes
+app.use("/api/auth", authRouter);
 
-//Appliaction level Error handler
+// Application-level Error handler
 app.use((err, req, res, next) => {
-  logger.error("Error while requesting: ", {
-    message: err.message,
+  logger.error({
+    message: err.message || "Error while requesting",
     stack: err.stack,
     url: req.url,
     method: req.method,
     query: req.query,
     params: req.params,
   });
+
   if (err instanceof ApplicationLevelError) {
     return res.status(err.code).send(err.message);
   }
