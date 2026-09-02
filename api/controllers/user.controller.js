@@ -8,11 +8,14 @@ export default class UserController {
 
   updateUser = async (req, res, next) => {
     try {
-      console.log("Req user update user: ",req.user.userId);
-      console.log("Req params id update user: ",req.params.id);
-      
+      console.log("Req user update user: ", req.user.userId);
+      console.log("Req params id update user: ", req.params.id);
+
       if (String(req.user.userId) !== String(req.params.id)) {
-        throw new ApplicationLevelError("Unauthorized: Cannot modify this account!", 401);
+        throw new ApplicationLevelError(
+          "Forbidden: Cannot delete this account!",
+          403,
+        );
       }
 
       const { id } = req.params;
@@ -32,6 +35,30 @@ export default class UserController {
       });
     } catch (e) {
       next(e);
+    }
+  };
+
+  deleteUser = async (req, res, next) => {
+    try {
+      console.log("Delete user controller req.user.userId:", req.user.userId);
+      console.log("Delete user controller req.params.id:", req.params.id);
+
+      if (req.user.userId !== req.params.id) {
+        throw new ApplicationLevelError(
+          "Forbidden: Cannot delete this account!",
+          403,
+        );
+      }
+
+      const response = await this.User.removeUser(req.params.id);
+
+      return res.status(200).json({
+        success: true,
+        message: "User account deleted successfully!",
+        data: response,
+      });
+    } catch (error) {
+      next(error);
     }
   };
 }

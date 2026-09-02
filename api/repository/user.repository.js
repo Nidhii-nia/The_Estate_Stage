@@ -9,7 +9,7 @@ export default class UserRepository {
         throw new ApplicationLevelError("Invalid user ID", 400);
       }
       console.log("Id update user repo:", id);
-      
+
       const user = await User.findById(id);
 
       if (!user) {
@@ -40,9 +40,29 @@ export default class UserRepository {
 
         throw new ApplicationLevelError(err, 400);
       }
-      console.log("Something went wrong update user repo:",e.message);
-      
+      console.log("Something went wrong update user repo:", e.message);
+
       throw new ApplicationLevelError(`Something went wrong `, 500);
+    }
+  };
+
+  removeUser = async (id) => {
+    try {
+      const userExistsandDelete = await User.findByIdAndDelete(id);
+
+      if (!userExistsandDelete) {
+        throw new ApplicationLevelError("User not found!", 404);
+      }
+
+      console.log("Deleted user:", userExistsandDelete);
+
+      return userExistsandDelete;
+    } catch (e) {
+      if (e instanceof ApplicationLevelError) {
+        throw e;
+      }
+      console.log("delete user repo error:", e.message);
+      throw new ApplicationLevelError("Something went wrong!", 500);
     }
   };
 }

@@ -9,6 +9,8 @@ const auth = (req,res,next) => {
     };
 
     const token = authToken.startsWith("Bearer ")?authToken.split(" ")[1]:authToken;
+    console.log("Token: ", token);
+    
 
     try{
         const payload = jwt.verify(token,process.env.JWT_SECRET_KEY);

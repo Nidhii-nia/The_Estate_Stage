@@ -72,6 +72,18 @@ export default class AuthRepository {
     }
   };
 
+  getUserById = async (id) => {
+    const user = await User.findById(id);
+
+    if (!user) {
+      throw new ApplicationLevelError("User not found!", 404);
+    }
+
+    const userObj = user.toObject();
+    delete userObj.password;
+    return userObj;
+  };
+
   pushGoogleLoginData = async (name, email, avatar) => {
     try {
       const userExists = await User.findOne({ email: email });

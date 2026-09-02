@@ -6,6 +6,12 @@ const userRouter = express.Router();
 
 const userController = new UserController();
 
-userRouter.put('/update/:id',auth,userController.updateUser);
+//update user profile
+userRouter.put("/update/:id", auth, userController.updateUser);
+
+//delete user account
+userRouter.delete("/delete/:id", auth, userController.deleteUser);
+
+//logout user
 
 export default userRouter;

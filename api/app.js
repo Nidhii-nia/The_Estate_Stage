@@ -6,6 +6,7 @@ import ApplicationLevelError from "./middlewares/applicationError.middleware.js"
 import logger from "./middlewares/logger.middleware.js";
 import authRouter from "./routes/auth.route.js";
 import userRouter from "./routes/user.route.js";
+import listingRouter from "./routes/listing.route.js";
 
 const app = express();
 
@@ -36,6 +37,9 @@ app.use("/api/auth", authRouter);
 
 //user routes
 app.use("/api/user", userRouter);
+
+//listing routes
+app.use("/api/listing", listingRouter);
 
 // Application-level Error handler
 app.use((err, req, res, next) => {

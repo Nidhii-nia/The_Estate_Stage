@@ -1,3 +1,4 @@
+import ApplicationLevelError from "../middlewares/applicationError.middleware.js";
 import AuthRepository from "../repository/auth.repository.js"
 import jwt from "jsonwebtoken";
 
@@ -47,6 +48,19 @@ export default class AuthController {
     }
   };
 
+  Session = async (req, res, next) => {
+    try {
+      const user = await this.User.getUserById(req.user.userId);
+
+      return res.status(200).json({
+        success: true,
+        data: user,
+      });
+    } catch (e) {
+      next(e);
+    }
+  };
+
   GoogleLogin = async (req, res, next) => {
     try {
       const { name, email, avatar } = req.body;
@@ -56,7 +70,7 @@ export default class AuthController {
       const user = await this.User.pushGoogleLoginData(name, email, avatar);
       console.log("User Google:", user);
 
-      const token = jwt.sign({ userId: user._id, username: user.username },process.env.JWT_SECRET_KEY,{expiresIn:"1d"});
+      const token = jwt.sign({ userId: user._id, username: user.username },process.env.JWT_SECRET_KEY,{expiresIn:"30d"});
       return res
         .cookie("access_token", token, { httpOnly: true })
         .status(200)
@@ -69,4 +83,15 @@ export default class AuthController {
       next(e);
     }
   };
+
+  Logout = async(req,res,next) => {
+    try{
+      res.clearCookie("access_token").status(200).json({
+        success:true,
+        message:"Logout successful!",
+      });
+    }catch(e){
+      throw new ApplicationLevelError("Logout failed!",400);
+    }
+  }
 }
