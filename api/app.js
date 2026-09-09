@@ -1,5 +1,7 @@
 import express from "express";
 import cookieParser from "cookie-parser";
+import path from "path";
+import { fileURLToPath } from "url";
 
 // File imports
 import ApplicationLevelError from "./middlewares/applicationError.middleware.js";
@@ -10,9 +12,13 @@ import listingRouter from "./routes/listing.route.js";
 
 const app = express();
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const clientDistPath = path.join(__dirname, "..", "client", "dist");
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(express.static(clientDistPath));
 
 // Request logger (Placed BEFORE routes so all incoming requests are logged)
 app.use((req, res, next) => {
@@ -40,6 +46,11 @@ app.use("/api/user", userRouter);
 
 //listing routes
 app.use("/api/listing", listingRouter);
+
+// Let the client-side router handle non-API routes in production.
+app.get("/{*splat}", (req, res) => {
+  res.sendFile(path.join(clientDistPath, "index.html"));
+});
 
 // Application-level Error handler
 app.use((err, req, res, next) => {

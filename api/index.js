@@ -7,7 +7,6 @@ import ApplicationLevelError from "./middlewares/applicationError.middleware.js"
 
 const PORT = process.env.PORT || 3000;
 
-
 const startServer = async () => {
   try {
     await connectUsingMongoose();
