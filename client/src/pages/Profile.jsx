@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { toast } from "sonner";
-import { NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import {
   userSelector,
@@ -15,12 +15,8 @@ import {
   deleteUserStart,
   deleteUserFailure,
   deleteUserSuccess,
-  logoutUserStart,
-  logoutUserSuccess,
-  logoutUserFailure,
 } from "@/redux/slice/user.slice.js";
 import { supabase } from "../config/supabase.config.js";
-import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
   const { currentUser, loading, error } = useSelector(userSelector);
@@ -85,14 +81,13 @@ const Profile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      dispatch(updateUserStart()); // Called as function
+      dispatch(updateUserStart());
 
       const response = await axios.put(
         `/api/user/update/${currentUser._id}`,
-        formData,
+        formData
       );
 
-      // Redux gets updated with response data
       dispatch(updateUserSuccess(response.data.data || response.data));
       toast.success("Profile updated successfully!");
     } catch (err) {
@@ -101,7 +96,7 @@ const Profile = () => {
     }
   };
 
-  //handle delete user account functionality
+  // Handle delete user account functionality
   const handleDelete = async (e) => {
     e.preventDefault();
     try {
@@ -110,7 +105,7 @@ const Profile = () => {
         `/api/user/delete/${currentUser._id}`,
         {
           withCredentials: true,
-        },
+        }
       );
       console.log("Backend response delete user:", response.data.data);
       navigate("/");
@@ -126,26 +121,9 @@ const Profile = () => {
     }
   };
 
-  //handleLogout
-  const handleLogout = async (e) => {
-    e.preventDefault();
-    try {
-      dispatch(logoutUserStart());
-      const response = await axios.post(`/api/auth/logout/`);
-      console.log("Backend response logout user:", response.data.message);
-      navigate("/");
-      dispatch(logoutUserSuccess());
-      toast.success("Logged out successfully.");
-    } catch (error) {
-      const errorMessage =
-        error.response?.data || error.message || "Deletion Failed!";
-      dispatch(logoutUserFailure(errorMessage));
-    }
-  };
-
   return (
-    <div className="flex flex-col w-full items-center justify-center p-4">
-      <div className="flex w-full m-3 max-w-xs flex-col items-center gap-6 rounded-2xl border border-cyan-600 bg-amber-50 p-6 shadow-xl">
+    <div className="min-h-[calc(100vh-80px)] w-full flex flex-col justify-center items-center py-6">
+      <div className="flex w-full max-w-xs flex-col items-center gap-4 rounded-2xl border border-cyan-600 bg-amber-50 p-6 shadow-xl">
         <h1 className="text-2xl font-semibold text-amber-900 sm:text-3xl">
           Profile
         </h1>
@@ -171,7 +149,7 @@ const Profile = () => {
           <img
             src={formData.avatar || currentUser?.avatar}
             alt="user-avatar"
-            className="rounded-full w-18 h-18 outline-2 outline-cyan-700 cursor-pointer object-cover"
+            className="rounded-full w-20 h-20 outline-2 outline-cyan-700 cursor-pointer object-cover"
             onClick={() => fileRef.current?.click()}
             referrerPolicy="no-referrer"
           />
@@ -226,37 +204,18 @@ const Profile = () => {
           >
             {loading ? "Updating..." : "UPDATE"}
           </Button>
-          <NavLink to="/create-listing" className={"w-full"}>
-            <Button
-              type="button"
-              className="w-full transition-transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              CREATE LISTING
-            </Button>
-          </NavLink>
         </form>
-      </div>
-      <div className="w-[50vw] mt-5 flex justify-around items-center gap-10">
-        <Button
-          type="button"
-          variant="outline"
-          name="delete"
-          id="delete"
-          className="w-30 h-8 text-red-700 hover:text-red-600"
-          onClick={handleDelete}
-        >
-          Delete Account
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          name="delete"
-          id="delete"
-          className="w-30 h-8 text-cyan-950 hover:text-cyan-800"
-          onClick={handleLogout}
-        >
-          Logout
-        </Button>
+
+        <div className="w-full border-t border-amber-200 pt-4 mt-2 flex justify-center">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full text-red-700 hover:text-red-600 border-red-300 hover:bg-red-50"
+            onClick={handleDelete}
+          >
+            Delete Account
+          </Button>
+        </div>
       </div>
     </div>
   );

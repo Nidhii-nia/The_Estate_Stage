@@ -56,6 +56,11 @@ app.use((err, req, res, next) => {
     return res.status(err.code).send(err.message);
   }
   res.status(500).send("Something went wrong!");
+  next();
 });
+
+app.use((req,res)=>{
+  res.status(404).send("No such route exists!");
+})
 
 export default app;

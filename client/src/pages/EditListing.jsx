@@ -4,13 +4,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/config/supabase.config";
 import axios from "axios";
 import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { FaTimes } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { userSelector } from "@/redux/slice/user.slice";
 
-const CreateListing = () => {
+const EditListing = () => {
+  const { listingId } = useParams();
+  const location = useLocation();
+  const listingData = location.state || {};
+
   const [fileError, setFileError] = useState(null);
   const [error, setError] = useState(null);
   const [filesToUpload, setFilesToUpload] = useState([]);
@@ -20,25 +24,24 @@ const CreateListing = () => {
   const [loading, setLoading] = useState(false);
   const { currentUser } = useSelector(userSelector);
 
+  // Initialize controlled form state directly with route data
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    address: "",
-    sellerEmail: "",
-    sellerPhone: "",
-    regularPrice: 5000,
-    discountPrice:1,
-    bathrooms: 1,
-    type: "rent",
-    notAvailable:false,
-    furnished: false,
-    parking: false,
-    offer: false,
-    beds: 1,
-    imageUrls: [],
+    name: listingData.name || "",
+    description: listingData.description || "",
+    address: listingData.address || "",
+    sellerEmail: listingData.sellerEmail || "",
+    sellerPhone: listingData.sellerPhone || "",
+    regularPrice: listingData.regularPrice || 5000,
+    discountPrice: listingData.discountPrice || 0,
+    bathrooms: listingData.bathrooms || 1,
+    type: listingData.type || "rent",
+    notAvailable: listingData.notAvailable || false,
+    furnished: listingData.furnished || false,
+    parking: listingData.parking || false,
+    offer: listingData.offer || false,
+    beds: listingData.beds || 1,
+    imageUrls: listingData.imageUrls || [],
   });
-
-  console.log("FormData: ", formData);
 
   const handleChange = (e) => {
     const { id, name, type, checked, value } = e.target;
@@ -62,15 +65,8 @@ const CreateListing = () => {
       return;
     }
 
-    // 3. Handle Text, Textarea, and Number inputs
-    if (type === "text" || type === "textarea" || type === "number") {
-      setFormData((prev) => ({
-        ...prev,
-        [targetId]: type === "number" ? Number(value) : value,
-      }));
-    }
-
-        setFormData((prev) => ({
+    // Handle all other controlled fields, including email and phone inputs.
+    setFormData((prev) => ({
       ...prev,
       [targetId]: type === "number" ? Number(value) : value,
     }));
@@ -150,23 +146,24 @@ const CreateListing = () => {
     if (formData.imageUrls.length < 1) {
       return setFileError("You must upload at least one image");
     }
-    if (+formData.regularPrice < +formData.discountPrice) {
+    if (formData.offer && +formData.regularPrice < +formData.discountPrice) {
       return setFileError("Discount price must be lower than regular price");
     }
 
     try {
       setLoading(true);
       setError(false);
-      await axios.post("/api/listing/create-listing", {
+      await axios.put(`/api/listing/userListing/update/${currentUser._id}/${listingId}`, {
         ...formData,
-        userRef: currentUser,
+        userRef: currentUser._id,
       });
       setLoading(false);
-      toast.success("Listing created successfully!");
+      toast.success("Listing updated successfully!");
       navigate("/");
-    } catch (error) {
-      console.log("Error:", error.message);
-      setError(error.response.data);
+    } catch (err) {
+      console.log("Error:", err.message);
+      setError(err.response?.data.message || "Something went wrong!");
+      setLoading(false);
     }
   };
 
@@ -174,11 +171,11 @@ const CreateListing = () => {
     <div className="flex flex-col justify-center items-center w-full p-2">
       <div className="flex w-full m-3 max-w-4xl flex-col items-center gap-6 rounded-2xl border border-cyan-600 bg-amber-50 p-6 shadow-xl">
         <h1 className="text-2xl font-semibold text-amber-900 sm:text-3xl">
-          Create Listing
+          Update Listing
         </h1>
         {error && (
-          <p className="flex justify-center items-center border border-red-600 bg-red-300 text-sm text-red-600 p-1 rounded-md">
-            {error}
+          <p className="flex flex-wrap justify-center items-center border w-full border-red-600 bg-red-50 text-sm text-red-600 p-2 rounded-md">
+            {typeof error === "string" ? error : "An error occurred"}
           </p>
         )}
         <form
@@ -247,7 +244,7 @@ const CreateListing = () => {
                   </label>
                 </div>
 
-                                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
                     id="notAvailable"
@@ -395,7 +392,7 @@ const CreateListing = () => {
                 <Button
                   type="button"
                   variant="outline"
-                  disabled={uploading}
+                  disabled={uploading || filesToUpload.length === 0}
                   className="border-2 border-green-600 text-xs text-green-700 hover:bg-green-200 hover:text-green-700 hover:border-green-500 transition-colors duration-300"
                   onClick={handleUploadImages}
                 >
@@ -423,8 +420,8 @@ const CreateListing = () => {
                     </Button>
                   </div>
                 ))}
-              <Button type="submit">
-                {loading&&error===false ? "Creating..." : "CREATE LISTING"}
+              <Button type="submit" disabled={loading}>
+                {loading ? "Updating..." : "UPDATE LISTING"}
               </Button>
             </div>
           </div>
@@ -434,4 +431,4 @@ const CreateListing = () => {
   );
 };
 
-export default CreateListing;
+export default EditListing;

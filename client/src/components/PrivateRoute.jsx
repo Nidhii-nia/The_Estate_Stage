@@ -14,32 +14,38 @@ const PrivateRoute = () => {
   const { currentUser } = useSelector(userSelector);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const hasCurrentUser = Boolean(currentUser);
-  const [checkingSession, setCheckingSession] = useState(hasCurrentUser);
+  const [checkingSession, setCheckingSession] = useState(true);
 
   useEffect(() => {
-    const interceptorId = axios.interceptors.response.use(
-      (response) => response,
-      (error) => {
-        if (error.response?.status === 401) {
+    let active = true;
+
+    const verifySession = async () => {
+      try {
+        const { data } = await axios.get("/api/auth/session");
+
+        if (active && data?.data) {
+          dispatch(signInSuccess(data.data));
+        }
+      } catch (error) {
+        console.log("Error PrivateRoute: ",error);
+        
+        if (active) {
           dispatch(logoutUserSuccess());
           navigate("/sign-in", { replace: true });
         }
+      } finally {
+        if (active) {
+          setCheckingSession(false);
+        }
+      }
+    };
 
-        return Promise.reject(error);
-      },
-    );
+    verifySession();
 
-    if (hasCurrentUser) {
-      axios
-        .get("/api/auth/session")
-        .then(({ data }) => dispatch(signInSuccess(data.data)))
-        .catch(() => {})
-        .finally(() => setCheckingSession(false));
-    }
-
-    return () => axios.interceptors.response.eject(interceptorId);
-  }, [dispatch, hasCurrentUser, navigate]);
+    return () => {
+      active = false;
+    };
+  }, [dispatch, navigate]);
 
   if (checkingSession) return null;
 

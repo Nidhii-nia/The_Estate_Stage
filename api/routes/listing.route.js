@@ -13,4 +13,18 @@ listingRouter.get(
   listingController.fetchUserListing,
 );
 
+listingRouter.get("/search", listingController.searchListings);
+listingRouter.get("/", listingController.fetchAllListings);
+listingRouter.get("/:listingId", listingController.fetchListingById);
+listingRouter.put(
+  "/userListing/update/:userId/:listingId",
+  auth,
+  listingController.modifyUserListing,
+);
+listingRouter.patch(
+  "/delete/:listingId",
+  auth,
+  listingController.removeListing,
+);
+
 export default listingRouter;
